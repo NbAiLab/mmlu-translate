@@ -9,13 +9,12 @@ This research aims to assess whether the translation quality of MMLU questions i
 
 ## Methodology
 ###    1.    Translation Process:
-    •    Utilize a standardized translation template that converts each English MMLU question into Norwegian while preserving the original structure (question text, four answer options, and metadata such as subject and original answer key).
-    •    Each translated question is accompanied by a detailed analysis that discusses potential translation challenges (e.g., idiomatic expressions, cultural references) and assigns a quality score on a scale from 1 (unusable) to 5 (perfect).
+*  Utilize a standardized translation template that converts each English MMLU question into Norwegian while preserving the original structure (question text, four answer options, and metadata such as subject and original answer key).
+*  Each translated question is accompanied by a detailed analysis that discusses potential translation challenges (e.g., idiomatic expressions, cultural references) and assigns a quality score on a scale from 1 (unusable) to 5 (perfect).
 ###    2.    Evaluation Criteria:
-    •    Translation Quality Scores:
-The translations will be scored as follows:
-    •    Score 5: Perfect translation, retaining clarity and nuance.
-    •    Score 4: Near-perfect translation with minor adjustments needed.
+* Translation Quality Scores:
+- Score 5: Perfect translation, retaining clarity and nuance.
+- Score 4: Near-perfect translation with minor adjustments needed.
     •    Score 3: Acceptable translation with minor distortions or slight loss of nuance.
     •    Score 2: Poor translation with significant loss of meaning.
     •    Score 1: Unusable translation.
