@@ -8,25 +8,30 @@ The Massive Multitask Language Understanding (MMLU) dataset is a comprehensive b
 This research aims to assess whether the translation quality of MMLU questions into Norwegian influences the performance of the target model, Llama3. Specifically, we hypothesize that the Norwegian MMLU score will be higher for questions that have been translated with higher quality (as determined by translation scores), even when the inherent difficulty of the original English questions remains constant.
 
 ## Methodology
-###    1.    Translation Process:
-- Utilize a standardized translation template that converts each English MMLU question into Norwegian while preserving the original structure (question text, four answer options, and metadata such as subject and original answer key).
--  Each translated question is accompanied by a detailed analysis that discusses potential translation challenges (e.g., idiomatic expressions, cultural references) and assigns a quality score on a scale from 1 (unusable) to 5 (perfect).
-###    2.    Evaluation Criteria:
--  Translation Quality Scores:
-  - Score 5: Perfect translation, retaining clarity and nuance.
-  - Score 4: Near-perfect translation with minor adjustments needed.
-    •    Score 3: Acceptable translation with minor distortions or slight loss of nuance.
-    •    Score 2: Poor translation with significant loss of meaning.
-    •    Score 1: Unusable translation.
-    •    Performance Evaluation:
-The target model (Llama3) will be evaluated on multiple subsets of the dataset, filtered by the Norwegian translation scores:
-    •    Only questions with scores 4 or higher.
-    •    Only questions with scores 3 or higher.
-    •    Only questions with scores 2 or higher.
-    •    The full dataset (all translations).
-For each subset, we will record the MMLU scores obtained by Llama3 when answering the Norwegian questions.
-###    3.    Control Evaluation on English Dataset:
-To ensure that high translation quality does not merely correlate with inherently easier questions, the same subsets of questions (based on Norwegian translation scores) will also be evaluated in their original English form. This dual evaluation will help determine whether improved Norwegian performance is due solely to better translations or if these questions are inherently less challenging.
+
+### 1. Translation Process:
+- **Utilize a standardized translation template:**  
+  Converts each English MMLU question into Norwegian while preserving the original structure (question text, four answer options, and metadata such as subject and original answer key).
+- **Accompanying Analysis:**  
+  Each translated question is accompanied by a detailed analysis that discusses potential translation challenges (e.g., idiomatic expressions, cultural references) and assigns a quality score on a scale from 1 (unusable) to 5 (perfect).
+
+### 2. Evaluation Criteria:
+- **Translation Quality Scores:**
+  - **Score 5:** Perfect translation, retaining clarity and nuance.
+  - **Score 4:** Near-perfect translation with minor adjustments needed.
+  - **Score 3:** Acceptable translation with minor distortions or slight loss of nuance.
+  - **Score 2:** Poor translation with significant loss of meaning.
+  - **Score 1:** Unusable translation.
+- **Performance Evaluation:**
+  - The target model (Llama3) will be evaluated on multiple subsets of the dataset, filtered by the Norwegian translation scores:
+    - Only questions with scores 4 or higher.
+    - Only questions with scores 3 or higher.
+    - Only questions with scores 2 or higher.
+    - The full dataset (all translations).
+  - For each subset, we will record the MMLU scores obtained by Llama3 when answering the Norwegian questions.
+
+### 3. Control Evaluation on English Dataset:
+- To ensure that high translation quality does not merely correlate with inherently easier questions, the same subsets of questions (based on Norwegian translation scores) will also be evaluated in their original English form. This dual evaluation will help determine whether improved Norwegian performance is due solely to better translations or if these questions are inherently less challenging.
 
 ## Hypothesis and Analysis
 Our central hypothesis is that Llama3’s performance on the Norwegian version of the MMLU dataset will correlate positively with the translation quality. In other words, questions translated with higher quality (scores 4 and 5) will yield higher model accuracy compared to those with lower scores. If the English evaluations for the same subsets do not exhibit a similar performance boost, this would suggest that the quality of the Norwegian translation plays a critical role in facilitating better understanding and correct responses by Llama3.
