@@ -169,3 +169,17 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+# Ignore temp files
+*.un~
+
+# Data dirs
+data/
+translated_data/
+
+# Ignore common editor temp/backup files
+*~
+*.swp
+*.swo
+
