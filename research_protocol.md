@@ -1,4 +1,5 @@
-# Research Protocol: Evaluating the Impact of Translation Quality on MMLU Performance in Norwegian
+# Research Protocol
+## Evaluating the Impact of Translation Quality on MMLU Performance in Norwegian
 
 ## Introduction
 The Massive Multitask Language Understanding (MMLU) dataset is a comprehensive benchmark designed to evaluate language models across a wide range of academic and professional domains. Comprising over 14,000 multiple-choice questions spanning 57 subjects, MMLU challenges models on tasks from basic factual recall to advanced reasoning. Given its original English formulation, there is increasing interest in assessing performance in other languages, notably Norwegian. High-level translations are essential to preserve the nuanced meaning, technical accuracy, and cultural context of each question, thereby ensuring that evaluations reflect genuine language understanding rather than artifacts of translation error.
