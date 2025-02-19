@@ -3,23 +3,26 @@ import argparse
 import json
 import logging
 import os
-from datasets import load_dataset
+from datasets import load_dataset, get_dataset_config_names, get_dataset_split_names
 
-def fetch_dataset(split: str, dataset_name: str = "cais/mmlu", config: str = "all"):
-    logging.debug(f"Loading dataset '{dataset_name}' with config '{config}' and split '{split}'")
-    dataset = load_dataset(dataset_name, config, split=split)
+
+def fetch_dataset(dataset_id: str, split: str, config: str = "all"):
+    logging.debug(f"Loading dataset '{dataset_id}' with config '{config}' and split '{split}'")
+    dataset = load_dataset(dataset_id, config, split=split)
     logging.debug(f"Loaded dataset with {len(dataset)} records for config '{config}' and split '{split}'")
     return dataset
 
-def save_jsonl(dataset, output_file: str):
+
+def save_jsonl(dataset, output_file: str, add_id_field: bool = False):
     logging.debug(f"Saving dataset to '{output_file}' with added id field")
     with open(output_file, "w", encoding="utf-8") as f:
         for idx, record in enumerate(dataset):
             # Create a new record with 'id' as the first key
-            new_record = {"id": idx}
+            new_record = {"id": idx} if add_id_field else {}
             new_record.update(record)
             f.write(json.dumps(new_record) + "\n")
     logging.debug(f"Finished saving dataset to '{output_file}'")
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -32,28 +35,20 @@ def main():
         help="Path to the output folder. Default is 'data/'."
     )
     args = parser.parse_args()
-    
+
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
     # Ensure the output folder exists
     os.makedirs(args.output_folder, exist_ok=True)
-    
-    config_name = "all"  # Default config to avoid the ValueError
 
-    # Fetch and save test set
-    test_dataset = fetch_dataset(split="test", config=config_name)
-    test_output_file = os.path.join(args.output_folder, "test.jsonl")
-    save_jsonl(test_dataset, test_output_file)
+    dataset_id = "CohereForAI/Global-MMLU"
+    dataset_name = dataset_id.split("/")[-1]
+    for config_name in get_dataset_config_names(dataset_id):
+        for split in get_dataset_split_names(dataset_id, config_name):
+            dataset = fetch_dataset(dataset_id, split, config_name)
+            output_file = os.path.join(args.output_folder, f"{dataset_name}_{split}_{config_name}.jsonl")
+            save_jsonl(dataset, output_file)
 
-    # Fetch and save validation set
-    validation_dataset = fetch_dataset(split="validation", config=config_name)
-    validation_output_file = os.path.join(args.output_folder, "validation.jsonl")
-    save_jsonl(validation_dataset, validation_output_file)
-    
-    # Fetch and save dev set
-    dev_dataset = fetch_dataset(split="dev", config=config_name)
-    dev_output_file = os.path.join(args.output_folder, "dev.jsonl")
-    save_jsonl(dev_dataset, dev_output_file)
 
 if __name__ == '__main__':
     main()

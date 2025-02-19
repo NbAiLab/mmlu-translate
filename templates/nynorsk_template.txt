@@ -1,0 +1,26 @@
+Massive Multitask Language Understanding (MMLU)-datasettet er ein benchmark utvikla for å evaluere språkmodellar på eit breitt spekter av akademiske og profesjonelle emne. Det består av over 14 000 fleirvalsoppgåver fordelt på 57 ulike fagområde, som dekkjer fag som naturvitskap, matematikk, jus, historie, medisin, business og meir. Kvar oppgåve har fire svaralternativ, noko som gir ein grunnleggjande nøyaktigheit på 25 % ved tilfeldig gjetting. Datasettet er strukturert som eit reint testsett, noko som betyr at det ikkje er meint for opplæring av modellar, men for å vurdere deira evne til å generalisere kunnskap. Oppgåvene i MMLU varierer i vanskegrad, frå grunnleggjande kunnskap til ekspertvurdering, og reflekterer verkelege eksamenar på vidaregåande, universitets- og profesjonelt nivå.
+Fagområda i MMLU er delte inn i fire hovudkategoriar: humaniora, STEM (Science, Technology, Engineering, and Mathematics), samfunnsvitskap og profesjonelle felt. Oppgåvene er henta frå undervisningsmateriell, standardiserte testar og ekspertvurderte eksamenar, noko som sikrar at dei representerer realistisk kunnskap i staden for kunstig genererte eksempel. Nokre oppgåver testar faktakunnskap, medan andre krev logisk resonnement, matematisk problemløysing eller bruk av spesialisert kunnskap. Dette gjer MMLU til ein utfordrande benchmark, ettersom han ikkje berre vurderer om ein modell har blitt eksponert for visse fakta, men òg om han kan bruke dei korrekt i komplekse situasjonar.
+Sidan datasettet dekkjer eit breitt spekter av emne, kan kulturelle og språkelege forskjellar påverke korleis modellar og menneske tolkar oppgåvene. Enkelte emne, som jus, historie og etikk, er ofte regionsspesifikke, noko som betyr at omsetjingar må ta omsyn til lokale rettssystem, historiske perspektiv og kulturelle kontekstar. I tillegg kan oppgåver innanfor naturvitskap og matematikk bruke spesifikk terminologi eller notasjon som varierer mellom språk. Med dette i tankane er det viktig å vere nøyaktig når ein omset, slik at oppgåva beheld sin opphavlege intensjon samstundes som ho er forståeleg og kulturelt tilpassa for ulike målgrupper.
+Når du omset MMLU-oppgåver til norsk, er det essensielt å bevare både meining og vanskegrad, samstundes som den omsette teksten forblir klar, presis og kulturelt tilpassa. Omsetjinga skal følgje same tekniske oppsett som originalen, med oppretthalding av oppgåvestrukturen, fleirvalsformatet (med fire svaralternativ) og eventuelle numeriske verdiar eller spesialterminologi. Direkte omsetjing er å føretrekke når det er mogleg, men tilpassingar kan vere nødvendige for idiom, kulturelle referansar, juridiske omgrep eller måleeiningar for å sikre at ein norsk lesar forstår teksten.
+I tillegg til omsetjinga skal kvar oppgåve vere følgd av ei skriftleg analyse. Denne analysen skal reflektere over eventuelle utfordringar som oppstod under omsetjinga, for eksempel omgrep som manglar ein direkte norsk ekvivalent, konsept som er ukjende for eit norsk publikum, eller kulturelle skeivskapar som kan påverke oppgåva si opplevde vanskegrad. Analysen skal òg gjere greie for om oppgåva forblir like utfordrande for ein norsk lesar som for ein amerikansk lesar. Til dømes vil oppgåver om USAs historie, jus eller politiske system truleg vere meir utfordrande for eit norsk publikum, medan oppgåver om naturvitskap, matematikk og generell kunnskap kan omsetjast med liten eller inga endring i vanskegrad. I tillegg skal ein leggje vekt på om omsetjinga «kjenst» like naturleg på norsk som på engelsk. Dersom formuleringane blir «krøkkete» på norsk, skal det ikkje gjevast toppscore.
+Utdataformat
+Kvar omsette oppgåve skal gjevast som ei enkelt JSON-linje (JSON Lines-format) i same format som originalen, med følgjande felt:
+{
+  "question": Omsetjing av spørsmålet.
+  "option_a": Omsetjing av svaralternativ A.
+  "option_b": Omsetjing av svaralternativ B.
+  "option_c": Omsetjing av svaralternativ C.
+  "option_d": Omsetjing av svaralternativ D.
+  "reason": Ei skriftleg analyse av kvaliteten på omsetjinga.
+  "score": Ein talverdi frå 1 til 5 som reflekterer kvaliteten på omsetjinga.
+}
+
+Omsetjingskvalitetsskala:
+    •    1 (Ubrukbar omsetjing) – Det var umogleg å omsetje oppgåva samstundes som den opphavlege meininga og klarleiken blei bevart. Resultatet er for unøyaktig til å inkluderast.
+    •    2 (Dårleg omsetjing, betydeleg meinings-tap) – Sjølv om ei grov omsetjing var mogleg, gjekk viktige delar av meininga tapt, eller svaralternativa gir ikkje lenger meining.
+    •    3 (Akseptabel omsetjing, mindre forvrengingar) – Omsetjinga er forståeleg, men enkelte nyansar, tekniske omgrep eller kulturelle referansar kunne ikkje tilpassast perfekt.
+    •    4 (God omsetjing, nesten identisk meining) – Spørsmålet og svaralternativa er svært nær originalen når det gjeld meining og vanskegrad, med berre mindre språkendringar.
+    •    5 (Perfekt omsetjing) – Den norske omsetjinga er like klar, presis og gyldig som originalen, og krev inga vidare revisjon.
+Ver venleg å omsetje følgjande spørsmål og svaralternativ frå engelsk til norsk nynorsk. Hugs at det berre er den endelege JSON-en som skal returnerast.:
+
+{question}

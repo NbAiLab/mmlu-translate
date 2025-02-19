@@ -2,6 +2,7 @@
 import os
 import json
 import argparse
+import re
 import threading
 import logging
 from openai import OpenAI
@@ -16,10 +17,12 @@ cost_lock = threading.Lock()
 # Thread-local storage for the API client.
 _thread_local = threading.local()
 
+
 def get_client(api_key):
     if not hasattr(_thread_local, "client"):
         _thread_local.client = OpenAI(api_key=api_key, base_url="https://api.deepinfra.com/v1/openai")
     return _thread_local.client
+
 
 def accumulate_stream_response(response):
     # Simply accumulate all content and return the final text.
@@ -29,21 +32,24 @@ def accumulate_stream_response(response):
         full_text += delta.get("content", "")
     return full_text.strip(), ""
 
+
 def parse_api_response(text):
     """
     Attempt to extract a JSON object from the API response text.
     This function looks for the first '{' and the last '}' and attempts to parse the substring.
     """
     text = text.strip()
+    text = re.sub("<think>.*?</think>", "", text, flags=re.DOTALL)  # Remove <think>...</think> blocks.
     # Remove markdown code block markers if present.
     if text.startswith("```"):
         text = text.strip("`").strip()
     start = text.find('{')
     end = text.rfind('}')
     if start != -1 and end != -1 and end > start:
-        json_text = text[start:end+1]
+        json_text = text[start:end + 1]
         return json.loads(json_text)
     raise ValueError("No valid JSON object found in text.")
+
 
 def process_record(line, template, api_key, stream_output):
     global total_cost
@@ -53,24 +59,32 @@ def process_record(line, template, api_key, stream_output):
         logging.error(f"JSON decoding failed for line: {line.strip()} with error: {e}")
         return None
 
+    keys = ["sample_id", "subject", "subject_category", "question", "option_a", "option_b", "option_c", "option_d",
+            "answer", "required_knowledge", "time_sensitive", "reference", "culture", "region", "country",
+            "cultural_sensitivity_label", "is_annotated"]
+
     # Ensure required fields are present.
-    for key in ["question", "subject", "choices", "answer"]:
+    for key in keys:  # ["question", "subject", "choices", "answer"]:
         if key not in input_data:
             logging.warning(f"Record skipped because it lacks '{key}' key: {input_data}")
             return None
 
     # Extract original fields.
-    original_question = input_data["question"]
-    original_subject = input_data["subject"]
-    original_choices = input_data["choices"]
-    original_answer = input_data["answer"]
-    original_id = input_data.get("id", None)
+    to_translate = {
+        "question": input_data["question"],
+        "option_a": input_data["option_a"],
+        "option_b": input_data["option_b"],
+        "option_c": input_data["option_c"],
+        "option_d": input_data["option_d"],
+    }
 
     # Create prompt by replacing {question} in the template.
-    user_prompt = template.replace("{question}", original_question)
+    user_prompt = template.replace("{question}", json.dumps(to_translate, ensure_ascii=False))
     client = get_client(api_key)
 
+    error_reason = None  # Set this before anything that can go wrong to provide a reason for the error.
     try:
+        error_reason = "API call failed."
         response = client.chat.completions.create(
             model="deepseek-ai/DeepSeek-R1",
             messages=[
@@ -78,22 +92,10 @@ def process_record(line, template, api_key, stream_output):
                 {"role": "user", "content": user_prompt},
             ],
             stream=stream_output,
-            max_tokens=2000
+            max_tokens=8192,
         )
-    except Exception as e:
-        logging.error(f"API call failed for prompt: {user_prompt} with error: {e}")
-        error_output = {
-            "id": original_id if original_id is not None else "N/A",
-            "question": "ERROR: Failed to get response from API",
-            "subject": original_subject,
-            "choices": original_choices,
-            "answer": original_answer,
-            "Reason": "API call failed",
-            "Score": 0
-        }
-        return json.dumps(error_output, ensure_ascii=False)
 
-    try:
+        error_reason = f"Failed to extract answer for prompt: {user_prompt}"
         if stream_output:
             final_text, _ = accumulate_stream_response(response)
         else:
@@ -106,52 +108,33 @@ def process_record(line, template, api_key, stream_output):
             estimated_cost = 0.0
         with cost_lock:
             total_cost += float(estimated_cost)
+
+        error_reason = "API response not valid JSON."
+        output_data = parse_api_response(final_text)
+
+        error_reason = "Missing keys in output data."
+        # Collect all keys in order.
+        final_out = {}
+        for key in keys:
+            if key in to_translate:
+                final_out[key] = output_data.get(key, "N/A")
+            else:
+                final_out[key] = input_data.get(key, "N/A")
+        for key in output_data.keys():
+            if key not in keys:
+                final_out[key] = output_data[key]
     except Exception as e:
-        logging.error(f"Failed to extract answer for prompt: {user_prompt} with error: {e}")
+        logging.error(f"Record processing failed with error: {e}, reason: {error_reason}")
         error_output = {
-            "id": original_id if original_id is not None else "N/A",
-            "question": "ERROR: Failed to extract final answer",
-            "subject": original_subject,
-            "choices": original_choices,
-            "answer": original_answer,
-            "Reason": "Failed to extract final answer",
-            "Score": 0
+            k: input_data.get(k, "N/A")
+            for k in keys
         }
+        error_output["Reason"] = error_reason
+        error_output["Score"] = 0
         return json.dumps(error_output, ensure_ascii=False)
 
-    try:
-        output_data = parse_api_response(final_text)
-    except Exception as e:
-        logging.error(f"Failed to parse API response as JSON: {final_text} with error: {e}")
-        output_data = {
-            "id": original_id if original_id is not None else "N/A",
-            "question": "ERROR: API response not valid JSON",
-            "subject": original_subject,
-            "choices": original_choices,
-            "answer": original_answer,
-            "Reason": "API response not valid JSON",
-            "Score": 0
-        }
-        return json.dumps(output_data, ensure_ascii=False)
+    return json.dumps(final_out, ensure_ascii=False)
 
-    # Override fields that must not be changed.
-    output_data["id"] = original_id if original_id is not None else "N/A"
-    output_data["subject"] = original_subject
-    output_data["answer"] = original_answer
-    if "choices" not in output_data:
-        output_data["choices"] = original_choices
-
-    # Expected output structure:
-    # {
-    #   "id": (unchanged),
-    #   "question": (translated question),
-    #   "subject": (unchanged),
-    #   "choices": (translated choices),
-    #   "answer": (unchanged integer 1-4),
-    #   "Reason": (explanation on translation choices and challenges),
-    #   "Score": (integer from 1 to 5 evaluating the translation)
-    # }
-    return json.dumps(output_data, ensure_ascii=False)
 
 def process_file_parallel(input_file, template, output_file, api_key, stream_output, num_workers, write_immediately):
     processed_count = 0
@@ -171,15 +154,14 @@ def process_file_parallel(input_file, template, output_file, api_key, stream_out
         logging.info("No new records to process.")
         return
 
-    if write_immediately:
-        out_file = open(output_file, "a", encoding="utf-8")
-    else:
-        results = []
-    with ThreadPoolExecutor(max_workers=num_workers) as executor:
+    results = []
+    with ThreadPoolExecutor(max_workers=num_workers) as executor, \
+            open(output_file, "a", encoding="utf-8") as out_file:
         for processed in tqdm(
-            executor.map(process_record, lines_to_process, repeat(template), repeat(api_key), repeat(stream_output)),
-            total=total,
-            desc="Processing"
+                executor.map(process_record, lines_to_process, repeat(template), repeat(api_key),
+                             repeat(stream_output)),
+                total=total,
+                desc="Processing"
         ):
             if processed is not None:
                 if write_immediately:
@@ -187,12 +169,10 @@ def process_file_parallel(input_file, template, output_file, api_key, stream_out
                     out_file.flush()
                 else:
                     results.append(processed)
-    if not write_immediately:
-        with open(output_file, "a", encoding="utf-8") as out_f:
+        if not write_immediately:
             for record in results:
                 out_f.write(record + "\n")
-    else:
-        out_file.close()
+
 
 def load_template(template_file):
     try:
@@ -202,12 +182,13 @@ def load_template(template_file):
         logging.error(f"Failed to load template from {template_file} with error: {e}")
         raise
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process JSON-lines with DeepSeek API in parallel.")
     parser.add_argument("--input_file", required=True, help="Input JSON-lines file.")
-    parser.add_argument("--template_file", default="templates/norwegian_template.txt",
-                        help="Optional template file. Defaults to 'templates/norwegian_template.txt'.")
-    parser.add_argument("--output_folder", default="translated_data/",
+    parser.add_argument("--template_file", required=True,
+                        help="Optional template file. Defaults to 'templates/bokmal_template.txt'.")
+    parser.add_argument("--output_file", required=True,
                         help="Optional output folder to save the output file. Defaults to 'translated_data/'.")
     parser.add_argument("--processes", type=int, default=10, help="Number of parallel workers (default: 10).")
     parser.add_argument("--debug", action="store_true", help="Enable debug logging output.")
@@ -222,11 +203,13 @@ if __name__ == "__main__":
         raise EnvironmentError("DEEP_INFRA environment variable not set.")
 
     # Ensure the output folder exists.
-    os.makedirs(args.output_folder, exist_ok=True)
+    output_folder = os.path.dirname(args.output_file)
+    os.makedirs(output_folder, exist_ok=True)
 
     template_content = load_template(args.template_file)
     # Use the same filename for output as the input file, placed in the output folder.
-    output_file = os.path.join(args.output_folder, os.path.basename(args.input_file))
+    # output_file = os.path.join(args.output_folder, os.path.basename(args.input_file))
+    output_file = args.output_file
 
     process_file_parallel(
         input_file=args.input_file,
