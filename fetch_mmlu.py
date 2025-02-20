@@ -6,7 +6,7 @@ import os
 from datasets import load_dataset, get_dataset_config_names, get_dataset_split_names
 
 
-def fetch_dataset(dataset_id: str, split: str, config: str = "all"):
+def fetch_dataset(dataset_id: str, split: str, config: str = "en"):
     logging.debug(f"Loading dataset '{dataset_id}' with config '{config}' and split '{split}'")
     dataset = load_dataset(dataset_id, config, split=split)
     logging.debug(f"Loaded dataset with {len(dataset)} records for config '{config}' and split '{split}'")

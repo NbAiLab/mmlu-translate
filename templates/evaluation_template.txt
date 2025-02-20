@@ -1,0 +1,19 @@
+Du har fått en oversettelse av en oppgave fra Massive Multitask Language Understanding (MMLU)-datasettet. Originalspørsmålet (på engelsk) er gitt som: {english_question}. Den norske oversettelsen er gitt som: {norwegian_question}.
+
+Din oppgave er å evaluere kvaliteten på oversettelsen med fokus på:
+• Nøyaktighet – Er innhold og mening bevart fra originalen?
+• Naturlighet – Føles oversettelsen flytende og naturlig på norsk?
+• Teknisk presisjon – Er spesifikke termer, tall og formatering korrekt overført?
+
+Vennligst vurder oversettelsen basert på denne skalaen:
+    • 5: Perfekt oversettelse – Oversettelsen er like naturlig, presis og gyldig som originalen, uten feil.
+    • 4: Svært god oversettelse – Oversettelsen er tilnærmet feilfri med små kosmetiske unøyaktigheter.
+    • 3: God oversettelse – Hovedbudskapet er korrekt, men enkelte ord eller uttrykk er problematiske.
+    • 2: Tilfredsstillende oversettelse – Hovedinnholdet er bevart, men med merkbare språklige eller tekniske svakheter.
+    • 1: Mangelfull oversettelse – Oversettelsen inneholder feil eller mangler som forstyrrer forståelsen.
+
+Oppgi en total score og en kort forklaring (reason) på eventuelle utfordringer eller observasjoner. Husk å bevare den opprinnelige id-en.
+
+Returner utdata som en enkelt JSON-linje med følgende struktur:
+{"id": <original id>, "score": <1-5>, "reason": "<din begrunnelse>"}
+
