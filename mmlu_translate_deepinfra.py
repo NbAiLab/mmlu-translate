@@ -51,7 +51,7 @@ def parse_api_response(text):
     raise ValueError("No valid JSON object found in text.")
 
 
-def process_record(line, template, api_key, stream_output):
+def process_record(line, template, api_key, stream_output, model):
     global total_cost
     try:
         input_data = json.loads(line.strip())
@@ -64,7 +64,7 @@ def process_record(line, template, api_key, stream_output):
             "cultural_sensitivity_label", "is_annotated"]
 
     # Ensure required fields are present.
-    for key in keys:  # ["question", "subject", "choices", "answer"]:
+    for key in keys:
         if key not in input_data:
             logging.warning(f"Record skipped because it lacks '{key}' key: {input_data}")
             return None
@@ -86,7 +86,7 @@ def process_record(line, template, api_key, stream_output):
     try:
         error_reason = "API call failed."
         response = client.chat.completions.create(
-            model="deepseek-ai/DeepSeek-R1",
+            model=model,
             messages=[
                 {"role": "system", "content": ""},
                 {"role": "user", "content": user_prompt},
@@ -136,7 +136,7 @@ def process_record(line, template, api_key, stream_output):
     return json.dumps(final_out, ensure_ascii=False)
 
 
-def process_file_parallel(input_file, template, output_file, api_key, stream_output, num_workers, write_immediately):
+def process_file_parallel(input_file, template, output_file, api_key, stream_output, num_workers, write_immediately, model):
     processed_count = 0
     if os.path.exists(output_file):
         with open(output_file, "r", encoding="utf-8") as out_f:
@@ -159,7 +159,7 @@ def process_file_parallel(input_file, template, output_file, api_key, stream_out
             open(output_file, "a", encoding="utf-8") as out_file:
         for processed in tqdm(
                 executor.map(process_record, lines_to_process, repeat(template), repeat(api_key),
-                             repeat(stream_output)),
+                             repeat(stream_output), repeat(model)),
                 total=total,
                 desc="Processing"
         ):
@@ -171,7 +171,7 @@ def process_file_parallel(input_file, template, output_file, api_key, stream_out
                     results.append(processed)
         if not write_immediately:
             for record in results:
-                out_f.write(record + "\n")
+                out_file.write(record + "\n")
 
 
 def load_template(template_file):
@@ -191,6 +191,7 @@ if __name__ == "__main__":
     parser.add_argument("--output_file", required=True,
                         help="Optional output folder to save the output file. Defaults to 'translated_data/'.")
     parser.add_argument("--processes", type=int, default=10, help="Number of parallel workers (default: 10).")
+    parser.add_argument("--model", default="deepseek-ai/DeepSeek-R1", help="Model to use (default: deepseek-ai/DeepSeek-R1).")
     parser.add_argument("--debug", action="store_true", help="Enable debug logging output.")
     args = parser.parse_args()
 
@@ -207,8 +208,6 @@ if __name__ == "__main__":
     os.makedirs(output_folder, exist_ok=True)
 
     template_content = load_template(args.template_file)
-    # Use the same filename for output as the input file, placed in the output folder.
-    # output_file = os.path.join(args.output_folder, os.path.basename(args.input_file))
     output_file = args.output_file
 
     process_file_parallel(
@@ -218,7 +217,8 @@ if __name__ == "__main__":
         api_key=api_key,
         stream_output=False,  # Always false
         num_workers=args.processes,
-        write_immediately=True  # Always true
+        write_immediately=True,  # Always true
+        model=args.model
     )
 
     # Print the total estimated cost after processing all records.
