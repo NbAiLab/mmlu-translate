@@ -2,12 +2,13 @@
 We did ask all the models to evaluate each others translations. This was done on the 285 lines dev-files.
 
 
-## Some major points:
+## Observations
 - Most models seem to have a positive self-image, evaluating their own results slightly better
 - DeepSeek-R1 is by far the most critical model
 - Mistral-Small-24B-Instruct-2501 and Qwen2.5-72B-Instruct is unsuited for translating English to Norwegian
 - Maybe only DeepSeek-R1, DeepSeek-V3, Meta-Llama-3.1-405B-Instruct and Llama-3.3-70B-Instruct should be used
-- The scores are suprisingly consistent. Everyone seems to agree what a bad translation looks like, even when the model itself is not able to translate at high quality
+- There seems to be varianse in the individual results. This indicates even a inferior model can happen to create a good translation, and that it is possible to recognise it. Maybe a popular vote can determine the best translation?
+- The scores are suprisingly consistent. Every model seem to agree what a bad translation looks like, even when the model itself is not able to translate at high quality
  
 
 ### Translation Quality Table
@@ -24,18 +25,18 @@ We did ask all the models to evaluate each others translations. This was done on
 | Qwen2.5-72B-Instruct            |          3.06 |          3.69 |                     3.57 |                           3.59 |                           3.89 |                          3.97 |                              3.72 |                   **3.87** |
 
 
-### Average Performance Translations (Excluding Self-Evaluation)
-|                                 |   Average Translation Score |
-|:--------------------------------|----------------------------:|
-| DeepSeek-R1                     |                        4.64 |
-| DeepSeek-V3                     |                        4.62 |
-| Meta-Llama-3.1-405B-Instruct    |                        4.55 |
-| Alexandria_Institute            |                        4.49 |
-| Llama-3.3-70B-Instruct          |                        4.41 |
-| Llama-3.3-70B-Instruct-Turbo    |                        4.39 |
-| Meta-Llama-3.1-70B-Instruct     |                        4.37 |
-| Qwen2.5-72B-Instruct            |                        3.64 |
-| Mistral-Small-24B-Instruct-2501 |                        2.96 |
+### Average Performance Translations
+|                                 |   Average Translation Score (Excl. Self) |   Average Translation Score (Incl. Self) |
+|:--------------------------------|-----------------------------------------:|-----------------------------------------:|
+| DeepSeek-R1                     |                                     4.64 |                                     4.64 |
+| DeepSeek-V3                     |                                     4.62 |                                     4.60  |
+| Meta-Llama-3.1-405B-Instruct    |                                     4.55 |                                     4.60  |
+| Alexandria_Institute            |                                     4.48 |                                     nan |
+| Llama-3.3-70B-Instruct          |                                     4.41 |                                     4.43 |
+| Llama-3.3-70B-Instruct-Turbo    |                                     4.39 |                                     4.42 |
+| Meta-Llama-3.1-70B-Instruct     |                                     4.37 |                                     4.41 |
+| Qwen2.5-72B-Instruct            |                                     3.64 |                                     3.67 |
+| Mistral-Small-24B-Instruct-2501 |                                     2.96 |                                     3.01 |
 
 
 ### Strictness in Evaluating Translations (Excluding Self-Evaluation)

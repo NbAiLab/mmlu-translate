@@ -43,8 +43,14 @@ def process_files(input_directory, output_file=None):
     
     # Compute average performance of translations (row-wise mean, excluding self-evaluation)
     avg_translation_performance = df.apply(pd.to_numeric, errors='coerce')
-    avg_translation_performance = avg_translation_performance.where(~np.eye(len(df), dtype=bool))
-    avg_translation_table = pd.DataFrame(avg_translation_performance.mean(axis=1).round(2), columns=["Average Translation Score"]).sort_values(by="Average Translation Score", ascending=False)
+    avg_translation_performance_excl_self = avg_translation_performance.where(~np.eye(len(df), dtype=bool))
+    avg_translation_performance_incl_self = avg_translation_performance.mean(axis=1).round(2)
+    avg_translation_performance_excl_self = avg_translation_performance_excl_self.mean(axis=1).round(2)
+    
+    avg_translation_table = pd.DataFrame({
+        "Average Translation Score (Excl. Self)": avg_translation_performance_excl_self,
+        "Average Translation Score (Incl. Self)": avg_translation_performance_incl_self
+    }).sort_values(by="Average Translation Score (Excl. Self)", ascending=False)
     
     # Compute strictness in evaluation (column-wise mean, excluding self-evaluation)
     evaluation_strictness = df.apply(pd.to_numeric, errors='coerce')
@@ -58,9 +64,9 @@ def process_files(input_directory, output_file=None):
     # Print as Markdown tables
     print("### Translation Quality Table")
     print(df.to_markdown())
-    print("\n### Average Performance Translations (Excluding Self-Evaluation)")
+    print("\n### Average Performance Translations")
     print(avg_translation_table.to_markdown())
-    print("\n### Strictness in Evaluating Translations (Excluding Self-Evaluation)")
+    print("\n### Strictness in Evaluating Translations")
     print(strictness_table.to_markdown())
 
 if __name__ == "__main__":
@@ -71,4 +77,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     process_files(args.input_directory, args.output_file)
-
