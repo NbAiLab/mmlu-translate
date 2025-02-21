@@ -204,7 +204,7 @@ if __name__ == "__main__":
                         help="Evaluation template file (default: templates/evaluation_template.txt).")
     parser.add_argument("--output_file", required=True,
                         help="Output JSON-lines file for evaluation results (e.g., comparison.jsonl).")
-    parser.add_argument("--processes", type=int, default=10, help="Number of parallel workers (default: 10).")
+    parser.add_argument("--processes", type=int, default=50, help="Number of parallel workers (default: 50).")
     parser.add_argument("--model", default="deepseek-ai/DeepSeek-R1", help="Model to use (default: deepseek-ai/DeepSeek-R1).")
     parser.add_argument("--debug", action="store_true", help="Enable debug logging output.")
     args = parser.parse_args()
