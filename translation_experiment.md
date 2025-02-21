@@ -10,3 +10,13 @@ python mmlu_translate_deepinfra.py --input_file data/Global-MMLU_dev_en.jsonl --
 python mmlu_translate_deepinfra.py --input_file data/Global-MMLU_dev_en.jsonl --output_file experiment/dev_Qwen2.5-72B-Instruct.jsonl --template_file templates/bokmal_template.txt --model Qwen/Qwen2.5-72B-Instruct
 python mmlu_translate_deepinfra.py --input_file data/Global-MMLU_dev_en.jsonl --output_file experiment/dev_Mistral-Small-24B-Instruct-2501.jsonl --template_file templates/bokmal_template.txt --model mistralai/Mistral-Small-24B-Instruct-2501
 ```
+
+
+
+Download the alexndria dataset. Then adapt it
+```bash
+jq 'with_entries(if .key == "instruction" then .key = "question" else . end)' -c dev_alexandria.jsonl > temp.jsonl && mv temp.jsonl dev_alexndria.jsonl
+jq 'with_entries(if .key == "instruction" then .key = "question" else . end)' -c en.jsonl > temp.jsonl && mv temp.jsonl en.jsonl
+jq 'with_entries(if .key == "id" then .key = "sample_id" else . end)' -c dev_alexandria.jsonl > temp.jsonl && mv temp.jsonl dev_alexandria.jsonl
+jq 'with_entries(if .key == "id" then .key = "sample_id" else . end)' -c en.jsonl > temp.jsonl && mv temp.jsonl en.jsonl
+```

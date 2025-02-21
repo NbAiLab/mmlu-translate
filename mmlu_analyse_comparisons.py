@@ -3,6 +3,7 @@ import json
 import pandas as pd
 import argparse
 from collections import defaultdict
+import numpy as np
 
 def process_files(input_directory, output_file=None):
     # Extract models from filenames
@@ -40,13 +41,15 @@ def process_files(input_directory, output_file=None):
         for e_model in data[t_model]:
             df.loc[t_model, e_model] = round(data[t_model][e_model], 2) if data[t_model][e_model] is not None else "N/A"
     
-    # Compute average performance of translations (row-wise mean)
-    avg_translation_performance = df.apply(pd.to_numeric, errors='coerce').mean(axis=1).round(2)
-    avg_translation_table = pd.DataFrame(avg_translation_performance, columns=["Average Translation Score"])
+    # Compute average performance of translations (row-wise mean, excluding self-evaluation)
+    avg_translation_performance = df.apply(pd.to_numeric, errors='coerce')
+    avg_translation_performance = avg_translation_performance.where(~np.eye(len(df), dtype=bool))
+    avg_translation_table = pd.DataFrame(avg_translation_performance.mean(axis=1).round(2), columns=["Average Translation Score"]).sort_values(by="Average Translation Score", ascending=False)
     
-    # Compute strictness in evaluation (column-wise mean)
-    evaluation_strictness = df.apply(pd.to_numeric, errors='coerce').mean(axis=0).round(2)
-    strictness_table = pd.DataFrame(evaluation_strictness, columns=["Evaluation Strictness"])
+    # Compute strictness in evaluation (column-wise mean, excluding self-evaluation)
+    evaluation_strictness = df.apply(pd.to_numeric, errors='coerce')
+    evaluation_strictness = evaluation_strictness.where(~np.eye(len(df), dtype=bool))
+    strictness_table = pd.DataFrame(evaluation_strictness.mean(axis=0).round(2), columns=["Evaluation Strictness"]).sort_values(by="Evaluation Strictness", ascending=True)
     
     # Save as CSV if specified
     if output_file:
@@ -55,9 +58,9 @@ def process_files(input_directory, output_file=None):
     # Print as Markdown tables
     print("### Translation Quality Table")
     print(df.to_markdown())
-    print("\n### Average Performance Translations")
+    print("\n### Average Performance Translations (Excluding Self-Evaluation)")
     print(avg_translation_table.to_markdown())
-    print("\n### Strictness in Evaluating Translations")
+    print("\n### Strictness in Evaluating Translations (Excluding Self-Evaluation)")
     print(strictness_table.to_markdown())
 
 if __name__ == "__main__":

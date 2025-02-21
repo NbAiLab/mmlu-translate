@@ -5,6 +5,7 @@ This repository provides tools for translating the Massive Multitask Language Un
 ## Contents
 
 - **[Research Protocol](research_protocol.md):** Details the translation process, quality scoring, and evaluation strategy.
+- **[Translation Quality Evaluation](translation_quality_evaluation.md):** Evaluation of translation quality.
 - **Translation Scripts:** Tools to accurately translate MMLU questions while preserving structure and meaning.
 - **Evaluation Tools:** Built upon [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) to assess translation quality and model performance on both Norwegian and English datasets.
 
