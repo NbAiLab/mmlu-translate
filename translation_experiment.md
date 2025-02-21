@@ -12,7 +12,7 @@ python mmlu_translate_deepinfra.py --input_file data/Global-MMLU_dev_en.jsonl --
 ```
 
 # Price
-R1 - 285 examples = 
+R1 - 285 examples = $1.34182635
 
 # Download the alexndria dataset. Then adapt it
 ```bash
