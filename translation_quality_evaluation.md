@@ -1,5 +1,14 @@
 # Translation Quality Evaluation
-We did ask all the models to evaluate each others translations. This was done on the 285 lines dev-files. The evaluations shows some very interesting results:
+We did ask all the models to evaluate each others translations. This was done on the 285 lines dev-files.
+
+
+## Some major points:
+- Most models seem to have a positive self-image, evaluating their own results slightly better
+- DeepSeek-R1 is by far the most critical model
+- Mistral-Small-24B-Instruct-2501 and Qwen2.5-72B-Instruct is unsuited for translating English to Norwegian
+- Maybe only DeepSeek-R1, DeepSeek-V3, Meta-Llama-3.1-405B-Instruct and Llama-3.3-70B-Instruct should be used
+- The scores are suprisingly consistent. Everyone seems to agree what a bad translation looks like, even when the model itself is not able to translate at high quality
+ 
 
 ### Translation Quality Table
 |                                 |   DeepSeek-R1 |   DeepSeek-V3 |   Llama-3.3-70B-Instruct |   Llama-3.3-70B-Instruct-Turbo |   Meta-Llama-3.1-405B-Instruct |   Meta-Llama-3.1-70B-Instruct |   Mistral-Small-24B-Instruct-2501 |   Qwen2.5-72B-Instruct |
@@ -14,6 +23,7 @@ We did ask all the models to evaluate each others translations. This was done on
 | Mistral-Small-24B-Instruct-2501 |          2.94 |          3.36 |                     2.49 |                           2.49 |                           2.97 |                          3    |                              **3.31** |                   3.48 |
 | Qwen2.5-72B-Instruct            |          3.06 |          3.69 |                     3.57 |                           3.59 |                           3.89 |                          3.97 |                              3.72 |                   **3.87** |
 
+
 ### Average Performance Translations (Excluding Self-Evaluation)
 |                                 |   Average Translation Score |
 |:--------------------------------|----------------------------:|
@@ -26,6 +36,7 @@ We did ask all the models to evaluate each others translations. This was done on
 | Meta-Llama-3.1-70B-Instruct     |                        4.37 |
 | Qwen2.5-72B-Instruct            |                        3.64 |
 | Mistral-Small-24B-Instruct-2501 |                        2.96 |
+
 
 ### Strictness in Evaluating Translations (Excluding Self-Evaluation)
 |                                 |   Evaluation Strictness |
@@ -41,11 +52,4 @@ We did ask all the models to evaluate each others translations. This was done on
 | Alexandria_Institute            |                  nan    |
 
 
-Some major points:
-- Most models seem to have a positive self-image, evaluating their own results slightly better
-- DeepSeek-R1 is by far the most critical model
-- Mistral-Small-24B-Instruct-2501 and Qwen2.5-72B-Instruct is unsuited for translating English to Norwegian
-- Maybe only DeepSeek-R1, DeepSeek-V3, Meta-Llama-3.1-405B-Instruct and Llama-3.3-70B-Instruct should be used
-- The scores are suprisingly consistent. Everyone seems to agree what a bad translation looks like, even when the model itself is not able to translate at high quality
 
- 
