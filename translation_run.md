@@ -4,12 +4,14 @@ Below is all the commands used in the main translation run.
 Based on the experiments on the dev-set, and the cost calculations available in [this document](translations_experiments) it was decided to have these main comparisons:
 
 ## Experiment Cost
-| ExpID | Model                                      | Description                                   |
-|-------|--------------------------------------------|-----------------------------------------------|
-| 1     | DeepSeek R1                                | Single model                                  |
-| 2     | DeepSeek V3                                | Single model                                  |
-| 3     | DeepSeek V3 - Llama 405B - Llama 70B       | Best out of 3 models                          |
-| 4     | Alexandra Institute                        | External dataset                              |
+| ExpID | Model                                      | Description                                   | Status/Cost                     | 
+|-------|--------------------------------------------|-----------------------------------------------|---------------------------------|
+| 1     | DeepSeek R1                                | Single model                                  | TBD                             |
+| 2     | DeepSeek V3                                | Single model                                  | TBD                             |
+| 3     | Llama 405B                                 | Single model                                  | TBD                             |
+| 4     | Llama 70B                                  | Single model                                  | Running to verify cost estimate |
+| 5     | DeepSeek V3 - Llama 405B - Llama 70B       | Best out of 3 models                          | TBD                             |
+| 6     | Alexandra Institute                        | External dataset                              | -                               |
 
 
 ## Translating the Models
