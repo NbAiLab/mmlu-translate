@@ -8,8 +8,8 @@ Based on the experiments on the dev-set, and the cost calculations available in 
 |-------|--------------------------------------------|-----------------------------------------------|
 | 1     | DeepSeek R1                                | Single model                                  |
 | 2     | DeepSeek V3                                | Single model                                  |
-| 3     | DeepSeek V3 - Llama 405B - Llama70B        | Best out of 3 models                          |
-| 4     | Alexandra Institute external               | External dataset                              |
+| 3     | DeepSeek V3 - Llama 405B - Llama 70B       | Best out of 3 models                          |
+| 4     | Alexandra Institute                        | External dataset                              |
 
 
 ## Translating the Models
