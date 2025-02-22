@@ -37,22 +37,22 @@ python mmlu_find_best_scores.py --input_folder experiment_compare/ --output_file
 python mmlu_analyse_comparisons.py
 ```
 
-# Cost Estimates - Translation
+# Cost Estimates
 ```bash
+# Transltion
 DeepSeek-R1 - 285 examples = $1.34182635 -> $65.913 for 14k
 DeepSeek-V3 - 285 examples = $0.30226221 -> $14.848 for 14k
 Llama_3.1-405B - 285 examples = $0.43798800 -> $21.515 for 14k
 Llama_3.3-70B - 285 examples = $0.14283057 -> $7.016 for 14k
-```
 
-# Price - Comparison x N
-```bash
+# Comparisons - needs to be multiplied by N
 DeepSeek-R1 - 285 examples = $0.91000590 -> $44.702 for 14k
 DeepSeek-V3 - 285 examples - $0.08400600 -> $4.127
 Llama_3.1-405B - 285 examples = $0.17398000 -> $8.564 for 14k
 Llama_3.3-70B - 285 examples = $0.05175618 -> $2.542 for 14k
 ```
 
+## Prices
 | Model            | Translation | Comparison |
 |-----------------|------------|------------|
 | DeepSeek R1     | $66        | $44        |
@@ -60,6 +60,8 @@ Llama_3.3-70B - 285 examples = $0.05175618 -> $2.542 for 14k
 | Llama 3.1 405B  | $21        | $9         |
 | Llama 3.3 70B   | $7         | $3         |
 
+
+## Experiment Cost
 | Model                                      | Calculation                                                    | Cost  | Comment      |
 |--------------------------------------------|----------------------------------------------------------------|-------|--------------|
 | R1                                         | -                                                              | $66   |OK            |
