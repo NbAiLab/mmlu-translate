@@ -190,7 +190,7 @@ if __name__ == "__main__":
                         help="Optional template file. Defaults to 'templates/bokmal_template.txt'.")
     parser.add_argument("--output_file", required=True,
                         help="Optional output folder to save the output file. Defaults to 'translated_data/'.")
-    parser.add_argument("--processes", type=int, default=10, help="Number of parallel workers (default: 10).")
+    parser.add_argument("--processes", type=int, default=50, help="Number of parallel workers (default: 50).")
     parser.add_argument("--model", default="deepseek-ai/DeepSeek-R1", help="Model to use (default: deepseek-ai/DeepSeek-R1).")
     parser.add_argument("--debug", action="store_true", help="Enable debug logging output.")
     args = parser.parse_args()

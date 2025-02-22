@@ -47,10 +47,11 @@ def process_files(input_directory, output_file=None):
     avg_translation_performance_incl_self = avg_translation_performance.mean(axis=1).round(2)
     avg_translation_performance_excl_self = avg_translation_performance_excl_self.mean(axis=1).round(2)
     
+    # Sort based on the Average Translation Score (Incl. Self)
     avg_translation_table = pd.DataFrame({
         "Average Translation Score (Excl. Self)": avg_translation_performance_excl_self,
         "Average Translation Score (Incl. Self)": avg_translation_performance_incl_self
-    }).sort_values(by="Average Translation Score (Excl. Self)", ascending=False)
+    }).sort_values(by="Average Translation Score (Incl. Self)", ascending=False)
     
     # Compute strictness in evaluation (column-wise mean, excluding self-evaluation)
     evaluation_strictness = df.apply(pd.to_numeric, errors='coerce')
