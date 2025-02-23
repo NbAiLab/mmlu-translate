@@ -129,6 +129,8 @@ def process_record(english_line, norwegian_line, template, api_key, stream_outpu
         # Ensure the output contains the required structure.
         # Force the original id from the English record.
         output_data["id"] = eng_record["sample_id"]
+        # Add the entire Norwegian record.
+        output_data["norwegian_data"] = nor_record
         # Expecting output_data to have "score" and "reason".
         return json.dumps(output_data, ensure_ascii=False)
     except Exception as e:
@@ -137,6 +139,8 @@ def process_record(english_line, norwegian_line, template, api_key, stream_outpu
         error_output["id"] = eng_record.get("sample_id", "N/A")
         error_output["score"] = 0
         error_output["reason"] = error_reason
+        # Add the entire Norwegian record in error output as well.
+        error_output["norwegian_data"] = nor_record
         return json.dumps(error_output, ensure_ascii=False)
 
 
@@ -204,7 +208,7 @@ if __name__ == "__main__":
                         help="Evaluation template file (default: templates/evaluation_template.txt).")
     parser.add_argument("--output_file", required=True,
                         help="Output JSON-lines file for evaluation results (e.g., comparison.jsonl).")
-    parser.add_argument("--processes", type=int, default=50, help="Number of parallel workers (default: 50).")
+    parser.add_argument("--processes", type=int, default=150, help="Number of parallel workers (default: 150).")
     parser.add_argument("--model", default="deepseek-ai/DeepSeek-R1", help="Model to use (default: deepseek-ai/DeepSeek-R1).")
     parser.add_argument("--debug", action="store_true", help="Enable debug logging output.")
     args = parser.parse_args()
