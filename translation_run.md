@@ -94,6 +94,14 @@ In the end, clean this up and copy to mmlu-no-best-clean:
 for f in mmlu-no-best/*.jsonl; do jq -c '{sample_id, subject, subject_category, question, option_a, option_b, option_c, option_d, answer, required_knowledge, time_sensitive, reference, culture, region, country, cultural_sensitivity_label, is_annotated}' "$f" > mmlu-no-best-clean/"$(basename "$f")"; done
 ```
 
+### Alexandria Data
+These data has another format, and needs special threatment. First concatenate into a single file:
+
+```bash
+cat test.jsonl train.jsonl val.jsonl > all.jsonl
+```
+
+
 ## Generating dataset
 Run the following command to convert the dataset to Global-MMLU HuggingFace format.
 ```bash
