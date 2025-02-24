@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import json
 import argparse
@@ -25,8 +26,13 @@ def process_files(input_folder, output_file, exclude_reasoning=False, exclude_sm
         "Mistral-Small-24B-Instruct-2501"
     }
     
-    # Accumulate valid scores per (entry_id, target_model)
-    scores_by_entry_target = defaultdict(list)
+    # ===== Begin evaluator calibration and weighted aggregation section =====
+    # Perform two passes: first, to calibrate evaluator biases using only valid scores (1-5)
+    # and compute weights, and second, to compute weighted averages for each (entry_id, target_model) pair.
+    
+    # Dictionaries for evaluator calibration and storing evaluations.
+    evaluator_scores = defaultdict(list)  # key: analysis_model, value: list of valid scores
+    evaluations = []  # list of tuples: (entry_id, target_model, score, analysis_model)
     
     for file in files:
         # Parse filename: expecting format "comparison_<target_model>_by_<analysis_model>.jsonl"
@@ -56,28 +62,62 @@ def process_files(input_folder, output_file, exclude_reasoning=False, exclude_sm
                     continue
                 if score < 1 or score > 5:
                     continue
-                # Accumulate score for the (entry_id, target_model)
-                scores_by_entry_target[(entry_id, target_model)].append(score)
+                # Collect evaluator scores for calibration
+                evaluator_scores[analysis_model].append(score)
+                # Store the evaluation record
+                evaluations.append((entry_id, target_model, score, analysis_model))
     
-    # First level: Compute the mean for each (entry_id, target_model)
-    avg_by_entry_target = {}
-    for (entry_id, target_model), scores in scores_by_entry_target.items():
-        if scores:
-            mean_score = sum(scores) / len(scores)
-            # Debug info commented out:
-            # print(f"[DEBUG] Entry: {entry_id}, Target: {target_model}, Scores: {scores}, Mean: {mean_score}")
-            avg_by_entry_target[(entry_id, target_model)] = mean_score
+    # Compute the global mean of all valid scores from evaluators
+    all_valid_scores = []
+    for scores in evaluator_scores.values():
+        all_valid_scores.extend(scores)
     
-    # Second level: For each entry, select the target model(s) with the highest mean score
+    if all_valid_scores:
+        global_mean = sum(all_valid_scores) / len(all_valid_scores)
+    else:
+        global_mean = 0.0
+    
+    # Calculate weights for each evaluator based on their average score
+    evaluator_weights = {}
+    evaluator_means = {}
+    for evaluator, scores in evaluator_scores.items():
+        evaluator_mean = sum(scores) / len(scores)
+        evaluator_means[evaluator] = evaluator_mean
+        evaluator_weights[evaluator] = global_mean / evaluator_mean if evaluator_mean != 0 else 1.0
+
+    # Print the evaluator weights as a Markdown table with three-digit accuracy,
+    # including the formula used for each evaluator.
+    print("| Evaluator Model             | Weight | Formula                             |")
+    print("|-----------------------------|--------|-------------------------------------|")
+    for evaluator, weight in sorted(evaluator_weights.items()):
+        eval_mean = evaluator_means[evaluator]
+        # Formula: w = global_mean / evaluator_mean
+        formula = f"`w = {global_mean:6.3f} / {eval_mean:6.3f}`"
+        print(f"| {evaluator:<27} | {weight:6.3f} | {formula:<35} |")
+    
+    # Compute weighted averages for each (entry_id, target_model)
+    weighted_scores_by_entry_target = defaultdict(lambda: {"weighted_sum": 0.0, "total_weight": 0.0})
+    for entry_id, target_model, score, analysis_model in evaluations:
+        weight = evaluator_weights.get(analysis_model, 1.0)
+        weighted_scores_by_entry_target[(entry_id, target_model)]["weighted_sum"] += score * weight
+        weighted_scores_by_entry_target[(entry_id, target_model)]["total_weight"] += weight
+    
+    weighted_avg_by_entry_target = {}
+    for (entry_id, target_model), data in weighted_scores_by_entry_target.items():
+        if data["total_weight"] > 0:
+            weighted_avg_by_entry_target[(entry_id, target_model)] = data["weighted_sum"] / data["total_weight"]
+    # ===== End evaluator calibration and weighted aggregation section =====
+    
+    # Second level: For each entry, select the target model(s) with the highest weighted average score
     global_best = defaultdict(lambda: {"score": float('-inf'), "models": set()})
-    for (entry_id, target_model), mean_score in avg_by_entry_target.items():
+    for (entry_id, target_model), mean_score in weighted_avg_by_entry_target.items():
         if mean_score > global_best[entry_id]["score"]:
             global_best[entry_id]["score"] = mean_score
             global_best[entry_id]["models"] = {target_model}
         elif mean_score == global_best[entry_id]["score"]:
             global_best[entry_id]["models"].add(target_model)
     
-    # Write the aggregated best mean scores to the specified output file.
+    # Write the aggregated best weighted average scores to the specified output file.
     with open(output_file, "w", encoding="utf-8") as out_f:
         for entry_id, data in global_best.items():
             out_f.write(json.dumps({
@@ -86,12 +126,12 @@ def process_files(input_folder, output_file, exclude_reasoning=False, exclude_sm
                 "best_models": ",".join(sorted(data["models"]))
             }) + "\n")
     
-    print(f"Saved global best scores to {output_file}")
+    print(f"Saved global best weighted scores to {output_file}")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Find global best mean scores from comparison JSONL files.")
+    parser = argparse.ArgumentParser(description="Find global best weighted mean scores from comparison JSONL files.")
     parser.add_argument("--input_folder", required=True, help="Folder containing comparison JSONL files.")
-    parser.add_argument("--output_file", required=True, help="File to store the global best mean score JSONL output.")
+    parser.add_argument("--output_file", required=True, help="File to store the global best weighted mean score JSONL output.")
     parser.add_argument("--exclude_reasoning", action="store_true",
                         help="If set, exclude any file with 'R1' as part of the model name.")
     parser.add_argument("--exclude_smallmodels", action="store_true",
