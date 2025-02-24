@@ -48,7 +48,16 @@ done
 ```
 
 ## Selcting the Correct Entries
-For the single model translations, the dataset is in reality already completed. However, for the datasets that needs evaluation it must go through another procedure.
+For the single model translations, the dataset is in reality already completed. 
+
+```bash
+cp mmlu-no/test_DeepSeek-R1.jsonl mmlu-no-best/n1.jsonl
+cp mmlu-no/test_DeepSeek-V3.jsonl mmlu-no-best/n2.jsonl
+cp mmlu-no/test_Meta-Llama-3.1-405B-Instruct.jsonl  mmlu-no-best/n3.jsonl
+cp mmlu-no/test_Llama-3.3-70B-Instruct.jsonl mmlu-no-best/n4.jsonl
+```
+
+However, for the datasets that needs evaluation it must go through another procedure.
 
 Raw score aggregation was found to be susceptible to evaluator bias, where certain evaluator models systematically awarded higher scores than others. This bias can unfairly inflate the perceived performance of target models, particularly when low-quality models are assessed by overly positive evaluators. To mitigate this, we implement a weighted aggregation approach. Each evaluator’s score is adjusted by a weight calculated as the ratio of the global mean score to the evaluator’s mean score, computed from valid scores. This normalization ensures that out-of-range or erroneous evaluations do not skew the calibration, leading to a fairer and more accurate comparison of model performance.
 
@@ -59,6 +68,23 @@ The following weighted ratios for expID=5 where calculated:
 | Llama-3.3-70B-Instruct      | $$w = \frac{\text{Global Mean}}{\text{Evaluator Mean}} = \frac{ 4.553}{ 4.635} = \mathbf{ 0.982}$$ |
 | Meta-Llama-3.1-405B-Instruct | $$w = \frac{\text{Global Mean}}{\text{Evaluator Mean}} = \frac{ 4.553}{ 4.867} = \mathbf{ 0.936}$$ |
 
+Run the following command to create this dataset:
+```bash
+python mmlu_find_best_scores.py --input_folder mmlu-no-comparison/ --output_file mmlu-no-best/n5.jsonl --exclude_reasoning --exclude_smallmodels
+```
 
 
 
+The following weighted tarios for expID=6 where calculated:
+| Evaluator Model             | Weight Calculation                                                   |
+|-----------------------------|----------------------------------------------------------------------|
+| DeepSeek-R1                 | $$w = \frac{\text{Global Mean}}{\text{Evaluator Mean}} = \frac{ 4.470}{ 4.206} = \mathbf{ 1.063}$$ |
+| DeepSeek-V3                 | $$w = \frac{\text{Global Mean}}{\text{Evaluator Mean}} = \frac{ 4.470}{ 4.382} = \mathbf{ 1.020}$$ |
+| Llama-3.3-70B-Instruct      | $$w = \frac{\text{Global Mean}}{\text{Evaluator Mean}} = \frac{ 4.470}{ 4.659} = \mathbf{ 0.960}$$ |
+| Meta-Llama-3.1-405B-Instruct | $$w = \frac{\text{Global Mean}}{\text{Evaluator Mean}} = \frac{ 4.470}{ 4.883} = \mathbf{ 0.915}$$ |
+
+Run the following command to create this dataset:
+
+```bash
+python mmlu_find_best_scores.py --input_folder mmlu-no-comparison/ --output_file mmlu-no-best/n6.jsonl --exclude_smallmodels
+```
