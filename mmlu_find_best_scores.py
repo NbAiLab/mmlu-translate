@@ -2,6 +2,7 @@
 import os
 import json
 import argparse
+import random
 from collections import defaultdict
 
 def process_files(input_folder, output_file, exclude_reasoning=False, exclude_smallmodels=False):
@@ -27,12 +28,13 @@ def process_files(input_folder, output_file, exclude_reasoning=False, exclude_sm
     }
     
     # ===== Begin evaluator calibration and weighted aggregation section =====
-    # Perform two passes: first, to calibrate evaluator biases using only valid scores (1-5)
-    # and compute weights, and second, to compute weighted averages for each (entry_id, target_model) pair.
+    # Two passes: first, calibrate evaluator biases (using only valid scores 1-5) and compute weights,
+    # then compute weighted averages for each (entry_id, target_model) pair.
     
     # Dictionaries for evaluator calibration and storing evaluations.
+    # Each evaluation record now includes the entire parsed JSON's norwegian_data if present.
     evaluator_scores = defaultdict(list)  # key: analysis_model, value: list of valid scores
-    evaluations = []  # list of tuples: (entry_id, target_model, score, analysis_model)
+    evaluations = []  # list of tuples: (entry_id, target_model, score, analysis_model, norwegian_data)
     
     for file in files:
         # Parse filename: expecting format "comparison_<target_model>_by_<analysis_model>.jsonl"
@@ -64,8 +66,8 @@ def process_files(input_folder, output_file, exclude_reasoning=False, exclude_sm
                     continue
                 # Collect evaluator scores for calibration
                 evaluator_scores[analysis_model].append(score)
-                # Store the evaluation record
-                evaluations.append((entry_id, target_model, score, analysis_model))
+                # Store the evaluation record, including the norwegian_data if available.
+                evaluations.append((entry_id, target_model, score, analysis_model, entry.get("norwegian_data", {})))
     
     # Compute the global mean of all valid scores from evaluators
     all_valid_scores = []
@@ -77,7 +79,7 @@ def process_files(input_folder, output_file, exclude_reasoning=False, exclude_sm
     else:
         global_mean = 0.0
     
-    # Calculate weights for each evaluator based on their average score
+    # Calculate weights for each evaluator based on their average score.
     evaluator_weights = {}
     evaluator_means = {}
     for evaluator, scores in evaluator_scores.items():
@@ -86,10 +88,10 @@ def process_files(input_folder, output_file, exclude_reasoning=False, exclude_sm
         evaluator_weights[evaluator] = global_mean / evaluator_mean if evaluator_mean != 0 else 1.0
 
     # Print the evaluator weights as a Markdown table with three-digit accuracy,
-    # including the entire formula on a single line with the final answer in bold.
+    # including the full formula on a single line with the final answer in bold.
     # The printed formula is:
     # $$w = \frac{\text{Global Mean}}{\text{Evaluator Mean}} = \frac{GLOBAL_MEAN}{EVALUATOR_MEAN} = \mathbf{FINAL_WEIGHT}$$
-    print("| Evaluator Model             | Formula                                                              |")
+    print("| Evaluator Model             | Weight Calculation                                                   |")
     print("|-----------------------------|----------------------------------------------------------------------|")
     for evaluator, weight in sorted(evaluator_weights.items()):
         eval_mean = evaluator_means[evaluator]
@@ -98,7 +100,7 @@ def process_files(input_folder, output_file, exclude_reasoning=False, exclude_sm
     
     # Compute weighted averages for each (entry_id, target_model)
     weighted_scores_by_entry_target = defaultdict(lambda: {"weighted_sum": 0.0, "total_weight": 0.0})
-    for entry_id, target_model, score, analysis_model in evaluations:
+    for entry_id, target_model, score, analysis_model, _ in evaluations:
         weight = evaluator_weights.get(analysis_model, 1.0)
         weighted_scores_by_entry_target[(entry_id, target_model)]["weighted_sum"] += score * weight
         weighted_scores_by_entry_target[(entry_id, target_model)]["total_weight"] += weight
@@ -109,7 +111,8 @@ def process_files(input_folder, output_file, exclude_reasoning=False, exclude_sm
             weighted_avg_by_entry_target[(entry_id, target_model)] = data["weighted_sum"] / data["total_weight"]
     # ===== End evaluator calibration and weighted aggregation section =====
     
-    # Second level: For each entry, select the target model(s) with the highest weighted average score
+    # Second level: For each entry, select the target model(s) with the highest weighted average score.
+    # From the possible winning target models, choose one at random.
     global_best = defaultdict(lambda: {"score": float('-inf'), "models": set()})
     for (entry_id, target_model), mean_score in weighted_avg_by_entry_target.items():
         if mean_score > global_best[entry_id]["score"]:
@@ -119,20 +122,35 @@ def process_files(input_folder, output_file, exclude_reasoning=False, exclude_sm
             global_best[entry_id]["models"].add(target_model)
     
     # Write the aggregated best weighted average scores to the specified output file.
+    # Also include the Norwegian translation fields (moved up) from the winning model.
     with open(output_file, "w", encoding="utf-8") as out_f:
         for entry_id, data in global_best.items():
-            out_f.write(json.dumps({
+            winners = list(data["models"])
+            # Choose one winning model at random among the winners.
+            chosen_model = random.choice(winners)
+            # Filter evaluation records to find those matching this entry_id and chosen target_model.
+            candidate_records = [ev for ev in evaluations if ev[0] == entry_id and ev[1] == chosen_model]
+            # If found, choose one record at random.
+            if candidate_records:
+                chosen_record = random.choice(candidate_records)
+                norwegian_data = chosen_record[4]
+            else:
+                norwegian_data = {}
+            # Construct final output JSON by merging norwegian_data fields at the top level.
+            final_obj = {
                 "id": entry_id,
                 "score": data["score"],
-                "best_models": ",".join(sorted(data["models"]))
-            }) + "\n")
+                "best_model": chosen_model
+            }
+            final_obj.update(norwegian_data)  # Moves all fields inside norwegian_data one level up.
+            out_f.write(json.dumps(final_obj) + "\n")
     
-    print(f"Saved global best weighted scores to {output_file}")
+    print(f"Saved global best weighted scores with Norwegian translation to {output_file}")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Find global best weighted mean scores from comparison JSONL files.")
+    parser = argparse.ArgumentParser(description="Find global best weighted mean scores from comparison JSONL files and add Norwegian translation from the winning model.")
     parser.add_argument("--input_folder", required=True, help="Folder containing comparison JSONL files.")
-    parser.add_argument("--output_file", required=True, help="File to store the global best weighted mean score JSONL output.")
+    parser.add_argument("--output_file", required=True, help="File to store the output JSONL with best weighted mean scores and Norwegian translation.")
     parser.add_argument("--exclude_reasoning", action="store_true",
                         help="If set, exclude any file with 'R1' as part of the model name.")
     parser.add_argument("--exclude_smallmodels", action="store_true",
