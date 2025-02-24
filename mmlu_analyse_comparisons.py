@@ -72,7 +72,7 @@ def process_files(input_directory, output_file=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process MMLU comparison JSONL files.")
-    parser.add_argument("--input_directory", default="experiment_compare/", help="Directory containing comparison JSONL files.")
+    parser.add_argument("--input_directory", default="mmlu-no-comparison/", help="Directory containing comparison JSONL files.")
     parser.add_argument("--output_file", required=False, help="Optional CSV output file.")
     
     args = parser.parse_args()
