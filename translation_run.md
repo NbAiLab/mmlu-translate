@@ -88,3 +88,8 @@ Run the following command to create this dataset:
 ```bash
 python mmlu_find_best_scores.py --input_folder mmlu-no-comparison/ --output_file mmlu-no-best/n6.jsonl --exclude_smallmodels
 ```
+
+In the end, clean this up and copy to mmlu-no-best-clean:
+```bash
+for f in mmlu-no-best/*.jsonl; do jq -c '{sample_id, subject, subject_category, question, option_a, option_b, option_c, option_d, answer, required_knowledge, time_sensitive, reference, culture, region, country, cultural_sensitivity_label, is_annotated}' "$f" > mmlu-no-best-clean/"$(basename "$f")"; done
+```
