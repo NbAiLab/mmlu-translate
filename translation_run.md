@@ -93,3 +93,9 @@ In the end, clean this up and copy to mmlu-no-best-clean:
 ```bash
 for f in mmlu-no-best/*.jsonl; do jq -c '{sample_id, subject, subject_category, question, option_a, option_b, option_c, option_d, answer, required_knowledge, time_sensitive, reference, culture, region, country, cultural_sensitivity_label, is_annotated}' "$f" > mmlu-no-best-clean/"$(basename "$f")"; done
 ```
+
+## Generating dataset
+Run the following command to convert the dataset to Global-MMLU HuggingFace format.
+```bash
+python make_dataset.py --input_files mmlu-no-best-clean/* --output_folder path_to_dataset/
+```
