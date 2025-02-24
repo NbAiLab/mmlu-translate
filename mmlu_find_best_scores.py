@@ -87,14 +87,14 @@ def process_files(input_folder, output_file, exclude_reasoning=False, exclude_sm
 
     # Print the evaluator weights as a Markdown table with three-digit accuracy,
     # including the entire formula on a single line with the final answer in bold.
-    # The formula printed is:
-    # $$w = \frac{\text{Global Mean}}{\text{Evaluator Mean}} =  \frac{\text{Global Mean}}{\text{Evaluator Mean}}$$
-    print("| Evaluator Model             | Formula                             |")
-    print("|-----------------------------|-------------------------------------|")
+    # The printed formula is:
+    # $$w = \frac{\text{Global Mean}}{\text{Evaluator Mean}} = \frac{GLOBAL_MEAN}{EVALUATOR_MEAN} = \mathbf{FINAL_WEIGHT}$$
+    print("| Evaluator Model             | Formula                                                              |")
+    print("|-----------------------------|----------------------------------------------------------------------|")
     for evaluator, weight in sorted(evaluator_weights.items()):
         eval_mean = evaluator_means[evaluator]
-        formula = f"`w = {global_mean:6.3f} / {eval_mean:6.3f} = **{weight:6.3f}**`"
-        print(f"| {evaluator:<27} | {formula:<35} |")
+        formula = f"$$w = \\frac{{\\text{{Global Mean}}}}{{\\text{{Evaluator Mean}}}} = \\frac{{{global_mean:6.3f}}}{{{eval_mean:6.3f}}} = \\mathbf{{{weight:6.3f}}}$$"
+        print(f"| {evaluator:<27} | {formula:<70} |")
     
     # Compute weighted averages for each (entry_id, target_model)
     weighted_scores_by_entry_target = defaultdict(lambda: {"weighted_sum": 0.0, "total_weight": 0.0})

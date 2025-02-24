@@ -52,7 +52,12 @@ For the single model translations, the dataset is in reality already completed. 
 
 Raw score aggregation was found to be susceptible to evaluator bias, where certain evaluator models systematically awarded higher scores than others. This bias can unfairly inflate the perceived performance of target models, particularly when low-quality models are assessed by overly positive evaluators. To mitigate this, we implement a weighted aggregation approach. Each evaluator’s score is adjusted by a weight calculated as the ratio of the global mean score to the evaluator’s mean score, computed from valid scores. This normalization ensures that out-of-range or erroneous evaluations do not skew the calibration, leading to a fairer and more accurate comparison of model performance.
 
-The following weighted averages where calculated:
+The following weighted ratios for expID=5 where calculated:
+| Evaluator Model             | Formula                                                              |
+|-----------------------------|----------------------------------------------------------------------|
+| DeepSeek-V3                 | $$w = \frac{\text{Global Mean}}{\text{Evaluator Mean}} = \frac{ 4.553}{ 4.347} = \mathbf{ 1.048}$$ |
+| Llama-3.3-70B-Instruct      | $$w = \frac{\text{Global Mean}}{\text{Evaluator Mean}} = \frac{ 4.553}{ 4.635} = \mathbf{ 0.982}$$ |
+| Meta-Llama-3.1-405B-Instruct | $$w = \frac{\text{Global Mean}}{\text{Evaluator Mean}} = \frac{ 4.553}{ 4.867} = \mathbf{ 0.936}$$ |
 
 
 
