@@ -23,6 +23,15 @@ python mmlu_translate_deepinfra.py --input_file data/Global-MMLU_test_en.jsonl -
 python mmlu_translate_deepinfra.py --input_file data/Global-MMLU_test_en.jsonl --output_file mmlu-no/test_Llama-3.3-70B-Instruct.jsonl --template_file templates/bokmal_template.txt --model meta-llama/Llama-3.3-70B-Instruct
 ```
 
+```bash
+python mmlu_translate_deepinfra.py --input_file data/Global-MMLU_dev_en.jsonl --output_file mmlu-no/dev_DeepSeek-R1.jsonl --template_file templates/bokmal_template.txt --model deepseek-ai/DeepSeek-R1
+python mmlu_translate_deepinfra.py --input_file data/Global-MMLU_dev_en.jsonl --output_file mmlu-no/dev_DeepSeek-V3.jsonl --template_file templates/bokmal_template.txt --model deepseek-ai/DeepSeek-V3
+python mmlu_translate_deepinfra.py --input_file data/Global-MMLU_dev_en.jsonl --output_file mmlu-no/dev_Meta-Llama-3.1-405B-Instruct.jsonl --template_file templates/bokmal_template.txt --model meta-llama/Meta-Llama-3.1-405B-Instruct
+python mmlu_translate_deepinfra.py --input_file data/Global-MMLU_dev_en.jsonl --output_file mmlu-no/dev_Llama-3.3-70B-Instruct.jsonl --template_file templates/bokmal_template.txt --model meta-llama/Llama-3.3-70B-Instruct
+```
+
+
+
 ## Comparing the Models
 We can run the comparison with the following command:
 
