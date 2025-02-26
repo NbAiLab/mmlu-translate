@@ -122,7 +122,8 @@ These data has another format, and needs special threatment. First concatenate i
 cat test.jsonl train.jsonl val.jsonl > all.jsonl
 ```
 For the dev-set here, we will just borrow the one from R1. This is just for prompting.
-````bash
+
+```bash
 cp mmlu-no-best-clean/n1_dev.jsonl mmlu-no-best-clean/n7_dev.jsonl
 ```
 
