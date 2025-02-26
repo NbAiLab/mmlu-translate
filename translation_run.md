@@ -3,8 +3,8 @@ Below is all the commands used in the main translation run.
 
 Based on the experiments on the dev-set, and the cost calculations available in [this document](translation_experiment.md) it was decided to have these main comparisons:
 
-## Experiment Cost
-| ExpID | Model                                                    | Description                                   | Status/Cost                     | 
+## Experiments
+| ExpID | Model                                                    | Description                                   | Status                     | 
 |-------|----------------------------------------------------------|-----------------------------------------------|---------------------------------|
 | 1     | DeepSeek R1                                              | Single model                                  | Done                            |
 | 2     | DeepSeek V3                                              | Single model                                  | Done                            |
@@ -66,6 +66,13 @@ cp mmlu-no/test_Meta-Llama-3.1-405B-Instruct.jsonl  mmlu-no-best/n3.jsonl
 cp mmlu-no/test_Llama-3.3-70B-Instruct.jsonl mmlu-no-best/n4.jsonl
 ```
 
+```bash
+cp mmlu-no/dev_DeepSeek-R1.jsonl mmlu-no-best/n1_dev.jsonl
+cp mmlu-no/dev_DeepSeek-V3.jsonl mmlu-no-best/n2_dev.jsonl
+cp mmlu-no/dev_Meta-Llama-3.1-405B-Instruct.jsonl  mmlu-no-best/n3_dev.jsonl
+cp mmlu-no/dev_Llama-3.3-70B-Instruct.jsonl mmlu-no-best/n4_dev.jsonl
+```
+
 However, for the datasets that needs evaluation it must go through another procedure.
 
 Raw score aggregation was found to be susceptible to evaluator bias, where certain evaluator models systematically awarded higher scores than others. This bias can unfairly inflate the perceived performance of target models, particularly when low-quality models are assessed by overly positive evaluators. To mitigate this, we implement a weighted aggregation approach. Each evaluator’s score is adjusted by a weight calculated as the ratio of the global mean score to the evaluator’s mean score, computed from valid scores. This normalization ensures that out-of-range or erroneous evaluations do not skew the calibration, leading to a fairer and more accurate comparison of model performance.
@@ -80,6 +87,8 @@ The following weighted ratios for expID=5 where calculated:
 Run the following command to create this dataset:
 ```bash
 python mmlu_find_best_scores.py --input_folder mmlu-no-comparison/ --output_file mmlu-no-best/n5.jsonl --exclude_reasoning --exclude_smallmodels
+
+python mmlu_find_best_scores.py --input_folder mmlu-no-comparison-dev/ --output_file mmlu-no-best/n5_dev.jsonl --exclude_reasoning --exclude_smallmodels
 ```
 
 
@@ -96,6 +105,9 @@ Run the following command to create this dataset:
 
 ```bash
 python mmlu_find_best_scores.py --input_folder mmlu-no-comparison/ --output_file mmlu-no-best/n6.jsonl --exclude_smallmodels
+
+python mmlu_find_best_scores.py --input_folder mmlu-no-comparison-dev/ --output_file mmlu-no-best/n6_dev.jsonl --exclude_smallmodels
+
 ```
 
 In the end, clean this up and copy to mmlu-no-best-clean:
@@ -109,7 +121,10 @@ These data has another format, and needs special threatment. First concatenate i
 ```bash
 cat test.jsonl train.jsonl val.jsonl > all.jsonl
 ```
-
+For the dev-set here, we will just borrow the one from R1. This is just for prompting.
+````bash
+cp mmlu-no-best-clean/n1_dev.jsonl mmlu-no-best-clean/n7_dev.jsonl
+```
 
 ## Generating dataset
 Run the following command to convert the dataset to Global-MMLU HuggingFace format.
