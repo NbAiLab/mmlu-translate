@@ -15,6 +15,8 @@ Based on the experiments on the dev-set, and the cost calculations available in 
 | 7     | Alexandra Institute                                      | External dataset                              | -                               |
 | 8     | DeepSeek R1 == 5                                         | Single model (9397 lines)                     | -                               |
 | 9     | English where DeepSeek R1 == 5                           | Single model (9397 lines)                     | -                               |
+| 10     | DeepSeek R1 blindly selects best translation            | Single model                                  | -                               |
+
 
 ## Translating the Models
 ```bash
