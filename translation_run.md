@@ -13,7 +13,8 @@ Based on the experiments on the dev-set, and the cost calculations available in 
 | 5     | DeepSeek V3 - Llama 405B - Llama 70B                     | Best out of 3 models                          | Done                            |
 | 6     | DeepSeek R1 - DeepSeek V3 - Llama 405B - Llama 70B       | Best out of 4 models                          | Done                            |
 | 7     | Alexandra Institute                                      | External dataset                              | -                               |
-
+| 8     | DeepSeek R1 == 5                                         | Single model (9397 lines)                     | -                               |
+| 9     | English where DeepSeek R1 == 5                           | Single model (9397 lines)                     | -                               |
 
 ## Translating the Models
 ```bash
@@ -126,6 +127,21 @@ For the dev-set here, we will just borrow the one from R1. This is just for prom
 ```bash
 cp mmlu-no-best-clean/n1_dev.jsonl mmlu-no-best-clean/n7_dev.jsonl
 ```
+
+### ExpID 8++
+In experiment #8 we extract only the scores where the model is certain that the score is 5 (N=9397).
+
+```bash
+jq -c 'select(.score == 5)' n1.jsonl > n8.jsonl
+```
+
+To make sure we do not only select the simple tasks here, we also check the corresponding lines from the English dataset. 
+
+```bash
+while IFS= read -r n1_line && IFS= read -r en_line <&3; do echo "$n1_line" | jq -e 'select(.score==5)' > /dev/null && echo "$en_line"; done < n1.jsonl 3< en.jsonl > n9.jsonl
+```
+
+
 
 ## Generating dataset
 Run the following command to convert the dataset to Global-MMLU HuggingFace format.
