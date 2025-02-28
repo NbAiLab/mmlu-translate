@@ -150,3 +150,19 @@ Run the following command to convert the dataset to Global-MMLU HuggingFace form
 ```bash
 python make_dataset.py --input_files mmlu-no-best-clean/* --output_folder path_to_dataset/
 ```
+
+## Results
+Results when running with lm-evaluation-harness:
+| Model                            | Subset | Score  |
+|----------------------------------|--------|--------|
+| meta-llama/Llama-3.1-8B-Instruct | en     | 66.02% |
+| meta-llama/Llama-3.1-8B-Instruct | n1     | 52.14% |
+| meta-llama/Llama-3.1-8B-Instruct | n2     | 51.96% |
+| meta-llama/Llama-3.1-8B-Instruct | n3     | 51.30% |
+| meta-llama/Llama-3.1-8B-Instruct | n4     | 51.22% |
+| meta-llama/Llama-3.1-8B-Instruct | n5     | 51.82% |
+| meta-llama/Llama-3.1-8B-Instruct | n6     | 51.94% |
+| meta-llama/Llama-3.1-8B-Instruct | n7     | 50.62% |
+| meta-llama/Llama-3.1-8B-Instruct | n8     | 52.77% |
+| meta-llama/Llama-3.1-8B-Instruct | n9     | 65.96% |
+| meta-llama/Llama-3.1-8B-Instruct | n10    | 52.16% |
