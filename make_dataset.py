@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -12,6 +13,7 @@ def main(input_files, output_folder):
         with open(file, "r", encoding="utf-8") as in_f:
             data = [json.loads(line) for line in in_f]
         file_name = file.stem
+        file_name = re.sub(r"_(train|dev|test|val|validation)", "", file_name).strip()
 
         df = pd.DataFrame(data)
         # sample_id structure is subject/split/counter
