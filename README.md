@@ -16,7 +16,7 @@ The final dataset itself is available [on HuggingFace](https://huggingface.co/da
 The MMLU dataset includes over 14,000 multiple-choice questions across 57 subjects. High-quality translations ensure that the original difficulty and context are maintained for Norwegian audiences.
 
 ## Usage
-This repo is designed to be used with the [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness). 
+The repo is mainly for creating the actual dataset, but the final result can also be used. You would then use it together with the [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness). 
 Example usage:
 ```
 git clone --depth 1 https://github.com/EleutherAI/lm-evaluation-harness
